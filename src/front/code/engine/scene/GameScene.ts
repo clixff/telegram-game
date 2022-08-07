@@ -15,7 +15,7 @@ export class GameScene extends Container
 
         this.sortableChildren = true;
 
-        this.setWorldZoom(0.35);
+        this.setWorldZoom(0.4);
     }
 
     spawnActor<T extends Actor = Actor>(actorClass: { new(bTick: boolean): T }, bTick: boolean = true): T

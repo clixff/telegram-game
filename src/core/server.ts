@@ -32,7 +32,7 @@ else
 {
     const compiler = webpack({
         mode: 'development',
-        entry: [ 'webpack-hot-middleware/client', path.join(appPath, 'src', 'front', 'hot.ts')],
+        entry: [ 'webpack-hot-middleware/client', path.join(appPath, 'src', 'front', 'index.ts')],
         output: {
             path: path.join(appPath, 'dist'),
             filename: 'index.js'

@@ -6,6 +6,7 @@ import { KeyboardManager } from "../controls/KeyboardManager";
 import { PlayerController } from "../player/PlayerController";
 import { CameraManager } from "../camera/CameraManager";
 import { UIScene } from "../ui/UIScene";
+import { settings as tileSettings } from '@pixi/tilemap'
 
 export interface IAssetData
 {
@@ -34,6 +35,11 @@ export class GameInstance
         {
             throw new Error('GameInstance already exists');
         }
+
+        PIXI.settings.SCALE_MODE = PIXI.SCALE_MODES.NEAREST;
+        
+        tileSettings.TEXTILE_SCALE_MODE = PIXI.SCALE_MODES.NEAREST;
+        tileSettings.use32bitIndex = true;
 
         GameInstance.Singleton = this;
         this.app = new PIXI.Application({

@@ -1,14 +1,4 @@
 import './styles/style.css';
-import { Application, Texture, Sprite, Container, Graphics, TextStyle, Text, settings } from 'pixi.js';
-import { BlurFilter } from '@pixi/filter-blur';
-import { GameInstance } from './code/engine/core/GameInstance';
-import { GameScene } from './code/engine/scene/GameScene';
-import { Actor } from './code/engine/scene/actors/Actor';
-import { SpriteComponent } from './code/engine/scene/actors/components/SpriteComponent';
-import { PlayerController } from './code/engine/player/PlayerController';
-import { GamePlayerController } from './code/game/player/GamePlayerController';
-import { CameraManager } from './code/engine/camera/CameraManager';
-import { GameUI } from './code/game/ui/GameUI';
 import { RPGGameInstance } from './code/game/core/RPGGameInstance';
 
 interface ITelegramApp
@@ -49,12 +39,32 @@ const gameAssets = [{
 	srcs: '/assets/dirt.png',
 },
 {
+	name: 't_tile',
+	srcs: '/assets/tile.png',
+},
+{
 	name: 't_tree',
 	srcs: '/assets/tree.png',
 },
 {
+	name: 't_sand',
+	srcs: '/assets/sand.png',
+},
+{
+	name: 't_water',
+	srcs: '/assets/water.png',
+},
+{
+	name: 't_shadow',
+	srcs: '/assets/shadow.png',
+},
+{
+	name: 't_planks',
+	srcs: '/assets/planks.png',
+},
+{
 	name: 't_pawn',
-	srcs: '/assets/pawn_2.png',
+	srcs: '/assets/pawn.png',
 },
 {
 	name: 'ui_joystick_bg',
