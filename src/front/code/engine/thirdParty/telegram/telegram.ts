@@ -13,6 +13,7 @@ interface ITelegramApp
     expand: () => void;
     close: () => void;
     onEvent: (name: string, callback: (...args: any) => void) => void;
+    isExpanded: boolean;
 }
 
 interface IWindowTelegramApp
@@ -35,7 +36,7 @@ if (window)
 
         telegramApp.onEvent('viewportChanged', (event) =>
         {
-            console.log(`Viewport changed`, event);
+            console.log(`Viewport changed`, event, telegramApp.isExpanded);
         })
 	}
 }
