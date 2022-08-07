@@ -7,6 +7,24 @@ export class RPGGameInstance extends GameInstance
     gameSession: RPGGameSession | null = null;
     constructor()
     {
+        window.addEventListener('touchmove', (event) =>
+        {
+            event.preventDefault();
+            event.stopPropagation();
+            event.stopImmediatePropagation();
+        }, {
+            passive: true
+        });
+
+        document.addEventListener('touchmove', (event) =>
+        {
+            event.preventDefault();
+            event.stopPropagation();
+            event.stopImmediatePropagation();
+        },
+        {
+            passive: true
+        });
         super();
     }
 
