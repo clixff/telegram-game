@@ -9,6 +9,9 @@ interface ITelegramApp
             language_code?: string
         }
     }
+    ready: () => void;
+    expand: () => void;
+    close: () => void;
 }
 
 interface IWindowTelegramApp

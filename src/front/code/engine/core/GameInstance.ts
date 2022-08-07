@@ -7,6 +7,7 @@ import { PlayerController } from "../player/PlayerController";
 import { CameraManager } from "../camera/CameraManager";
 import { UIScene } from "../ui/UIScene";
 import { settings as tileSettings } from '@pixi/tilemap'
+import { getTelegramWebApp } from "../thirdParty/telegram/telegram";
 
 export interface IAssetData
 {
@@ -40,6 +41,16 @@ export class GameInstance
         
         tileSettings.TEXTILE_SCALE_MODE = PIXI.SCALE_MODES.NEAREST;
         tileSettings.use32bitIndex = true;
+        tileSettings.TEXTURES_PER_TILEMAP = 16;
+
+        const telegramApp = getTelegramWebApp();
+
+        if (telegramApp)
+        {
+            telegramApp.expand();
+            telegramApp.ready();
+        }
+    
 
         GameInstance.Singleton = this;
         this.app = new PIXI.Application({
