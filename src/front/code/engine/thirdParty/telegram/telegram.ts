@@ -36,7 +36,13 @@ if (window)
 
         telegramApp.onEvent('viewportChanged', (event) =>
         {
-            console.log(`Viewport changed`, event, telegramApp ? telegramApp.isExpanded : null);
+            const isExpanded = telegramApp ? telegramApp.isExpanded : null;
+            console.log(`Viewport changed`, event, isExpanded);
+
+            if (isExpanded == false && telegramApp)
+            {
+                telegramApp.expand();
+            }
         })
 	}
 }
