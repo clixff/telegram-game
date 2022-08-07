@@ -12,6 +12,7 @@ interface ITelegramApp
     ready: () => void;
     expand: () => void;
     close: () => void;
+    onEvent: (name: string, callback: (...args: any) => void) => void;
 }
 
 interface IWindowTelegramApp
@@ -31,6 +32,11 @@ if (window)
 	if (tg && tg.WebApp)
 	{
 		telegramApp = tg.WebApp;
+
+        telegramApp.onEvent('viewportChanged', (event) =>
+        {
+            console.log(`Viewport changed`, event);
+        })
 	}
 }
 
