@@ -47,12 +47,14 @@ export class Pawn extends Actor
         this.spriteComponent.getSprite().scale.set(120 / 16);
         root.addChild(this.spriteComponent);
 
+
+
         const shadow = new SpriteComponent(this, gameInstance.getTextureByName('t_shadow'));
         shadow.getSprite().zIndex = 0;
         shadow.getSprite().anchor.set(0.5, 0.5);
         shadow.getSprite().alpha = 0.3;
         shadow.getSprite().scale.set(3.5);
-        root.addChild(shadow);
+        // root.addChild(shadow);
 
         this.getContainer().zIndex = 10;
 
@@ -76,8 +78,6 @@ export class Pawn extends Actor
 
         root.getContainer().addChild(this.textComponent);
         this.textComponent.position.y = 80.0;
-
-
 
         const nameComponent = new Text('', textStyle);
 
