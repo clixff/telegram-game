@@ -4,6 +4,7 @@ import { Actor } from "../../engine/scene/actors/Actor";
 import { SpriteComponent } from "../../engine/scene/actors/components/SpriteComponent";
 import { DropShadowFilter } from "pixi-filters";
 import { ContainerComponent } from "../../engine/scene/actors/components/ContainerComponent";
+import { getTelegramWebApp } from "../../engine/thirdParty/telegram/telegram";
 
 export class Pawn extends Actor
 {
@@ -57,8 +58,7 @@ export class Pawn extends Actor
 
         this.spriteComponent.getSprite().anchor.set(0.5, 1);
 
-
-        this.textComponent = new Text('', new TextStyle({
+        const textStyle = new TextStyle({
             align: 'center',
             fontFamily: 'Arial',
             fontSize: 30,
@@ -68,13 +68,30 @@ export class Pawn extends Actor
             dropShadowBlur: 4,
             dropShadowAngle: Math.PI / 6,
             dropShadowDistance: 6,
+        });
 
-        }));
+        this.textComponent = new Text('', textStyle);
 
         this.textComponent.anchor.set(0.5);
 
         root.getContainer().addChild(this.textComponent);
         this.textComponent.position.y = 80.0;
+
+
+
+        const nameComponent = new Text('', textStyle);
+
+        nameComponent.anchor.set(0.5);
+
+        root.getContainer().addChild(nameComponent);
+        nameComponent.position.y = -270.0;
+
+        const telegramApp = getTelegramWebApp();
+
+        if (telegramApp && telegramApp.initDataUnsafe && telegramApp.initDataUnsafe.user)
+        {
+            nameComponent.text = telegramApp.initDataUnsafe.user.first_name || '';
+        }
 
         this.updateSpriteFlipStatus(false);
     }

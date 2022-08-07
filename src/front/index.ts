@@ -1,32 +1,6 @@
 import './styles/style.css';
 import { RPGGameInstance } from './code/game/core/RPGGameInstance';
-
-interface ITelegramApp
-{
-
-}
-
-interface IWindowTelegramApp
-{
-	Telegram?:
-	{
-		WebApp: ITelegramApp;
-	}
-}
-
-
-let telegramApp: ITelegramApp | null = null;
-
-if (window)
-{
-	const tg = (window as IWindowTelegramApp).Telegram;
-	if (tg && tg.WebApp)
-	{
-		telegramApp = tg.WebApp;
-	}
-}
-
-console.log(telegramApp);
+import './code/engine/thirdParty/telegram/telegram';
 
 const gameInstance = new RPGGameInstance();
 

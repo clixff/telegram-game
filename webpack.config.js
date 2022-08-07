@@ -21,6 +21,9 @@ export default {
                 use: {
                     loader: "babel-loader"
                 },
+                resolve: {
+                    fullySpecified: false
+                }
             },
             {
                 test: /\.css$/,
