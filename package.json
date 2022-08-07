@@ -4,10 +4,10 @@
   "description": "",
   "main": "index.js",
   "scripts": {
-    "build": "tsc --build && npm run prepare && webpack --mode=production",
+    "build": "tsc --build && npm run prepare_build && webpack --mode=production",
     "start": "node ./build/core/server.js",
     "dev": "tsc --build tsconfig.dev.json && set NODE_ENV=development&& node ./build/core/server.js",
-    "prepare": "node ./build/core/build.js"
+    "prepare_build": "node ./build/core/build.js"
   },
   "keywords": [],
   "author": "",
