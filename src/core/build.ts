@@ -4,7 +4,7 @@ import path from 'path';
 
 const appPath: string = path.join(process.cwd());
 
-const foldersToSymlink = ['assets', 'styles'];
+const foldersToSymlink = ['assets', 'styles', 'shaders'];
 
 foldersToSymlink.forEach((folder) =>
 {

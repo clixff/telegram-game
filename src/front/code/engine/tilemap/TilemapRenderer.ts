@@ -1,8 +1,7 @@
 import * as PIXI from 'pixi.js';
-import fragmentShader from './shaders/tilemap.frag';
-import vertexShader from './shaders/tilemap.vert';
+import fragmentShader from '../../../shaders/tilemap/tilemap.frag';
+import vertexShader from '../../../shaders/tilemap/tilemap.vert';
 import { TilemapContainer } from './TilemapContainer';
-import { TilemapGeometry } from './TilemapGeometry';
 
 export class TilemapRenderer extends PIXI.ObjectRenderer
 {
