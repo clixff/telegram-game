@@ -69,17 +69,11 @@ else
                     test: /\.m?js$/,
                     enforce: 'pre',
                     use: ['source-map-loader']
+                },
+                {
+                    test: /\.(vert|frag)$/i,
+                    type: 'asset/source'
                 }
-                // {
-                //     test: /\.(png|jpe?g|gif)$/i,
-                //     loader: 'file-loader',
-                //     options: {
-                //         name: '[path][contenthash].[ext]',
-                //         outputPath: 'assets',
-                //         context: 'src/front/assets/',
-                //         publicPath: '/assets/'
-                //     }
-                // },
             ]
         },
         plugins: [

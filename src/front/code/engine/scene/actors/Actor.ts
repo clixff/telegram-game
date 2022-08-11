@@ -125,8 +125,6 @@ export class Actor
 
         this.velocity.x = clamp(this.velocity.x, -1, 1);
         this.velocity.y = clamp(this.velocity.y, -1, 1);
-
-        console.log(`New velocity: ${this._velocity.x}, ${this._velocity.y}`);
     }
 
     private _location: IVector = { x: 0, y: 0 };

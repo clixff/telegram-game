@@ -8,10 +8,11 @@ import { CameraManager } from "../camera/CameraManager";
 import { UIScene } from "../ui/UIScene";
 import { settings as tileSettings } from '@pixi/tilemap'
 import { getTelegramWebApp } from "../thirdParty/telegram/telegram";
+import { TilemapRenderer } from "../tilemap/TilemapRenderer";
 
 export interface IAssetData
 {
-    [key: string]: PIXI.Texture;
+    [key: string]: PIXI.Texture | PIXI.Spritesheet;
 }
 
 export interface IVector
@@ -50,7 +51,12 @@ export class GameInstance
             telegramApp.expand();
             telegramApp.ready();
         }
-    
+
+        PIXI.extensions.add({
+            name: 'customTilemap',
+            ref: TilemapRenderer,
+            type: PIXI.ExtensionType.RendererPlugin
+        });
 
         GameInstance.Singleton = this;
         this.app = new PIXI.Application({
@@ -63,9 +69,17 @@ export class GameInstance
             resizeTo: window
         });
 
+        const renderer = this.app.renderer as PIXI.Renderer;
+
+        if (renderer.gl)
+        {
+            renderer.globalUniforms.uniforms.globalLight = new Float32Array([0.964, 0.925, 0.819]);
+        }
+
         this.keyboardManager = new KeyboardManager();
         new CameraManager();
         this.app.stage.sortableChildren = true;
+        this.onAssetsLoadingProgress = this.onAssetsLoadingProgress.bind(this);
     }
 
     static Get(): GameInstance | null
@@ -111,9 +125,10 @@ export class GameInstance
                 }
             });
     
-            const bundle = await Assets.loadBundle('main');
+            const bundle = await Assets.loadBundle('main', this.onAssetsLoadingProgress);
             this.assets = bundle;
             console.log(this.assets);
+            this.onAssetsLoaded();
         }
         catch (error)
         {
@@ -121,11 +136,34 @@ export class GameInstance
         }
     }
 
+    onAssetsLoadingProgress(progress: number): void
+    {
+    }
+
+    onAssetsLoaded(): void
+    {
+
+    }
+
     getTextureByName(name: string): PIXI.Texture | null
     {
-        const texture = this.assets[name];
+        const asset = this.assets[name] as unknown as PIXI.Texture;
 
-        return texture ? texture : null;
+        return asset ? asset : null;
+    }
+
+    getTextureInSpriteSheet(spritesheet: string, textureName: string): PIXI.Texture | null
+    {
+        const asset = this.assets[spritesheet] as unknown as PIXI.Spritesheet;
+
+        if (!asset)
+        {
+            return null;
+        }
+
+        const texture = asset.textures[textureName];
+
+        return texture;
     }
 
     initPlayerController<T extends PlayerController = PlayerController>(controllerClass: { new(): T }): T

@@ -6,6 +6,7 @@ import { ContainerComponent } from "../../engine/scene/actors/components/Contain
 import { SpriteComponent } from "../../engine/scene/actors/components/SpriteComponent";
 import * as PIXI from 'pixi.js';
 import { CompositeTilemap, settings as tileSettings } from "@pixi/tilemap";
+import { TilemapContainer } from "../../engine/tilemap/TilemapContainer";
 
 export class WorldTile extends Actor
 {
@@ -21,29 +22,33 @@ export class WorldTile extends Actor
             return;
         }
 
-        const grassTexture = gameInstance.getTextureByName('t_grass');
-        const dirtTexture = gameInstance.getTextureByName('t_dirt');
-        const sandTexture = gameInstance.getTextureByName('t_sand');
-        const waterTexture = gameInstance.getTextureByName('t_water');
-        const planksTexture = gameInstance.getTextureByName('t_planks');
+        const spriteSheetName = 'atlas_tile';
 
-        const textureSize = 16;
+        const grassTexture = gameInstance.getTextureInSpriteSheet(spriteSheetName, 'grass');
+        const dirtTexture = gameInstance.getTextureInSpriteSheet(spriteSheetName, 'dirt');
+        const sandTexture = gameInstance.getTextureInSpriteSheet(spriteSheetName, 'sand');
+        const waterTexture = gameInstance.getTextureInSpriteSheet(spriteSheetName, 'water');
+        const planksTexture = gameInstance.getTextureInSpriteSheet(spriteSheetName, 'planks');
+        const snowTexture = gameInstance.getTextureInSpriteSheet(spriteSheetName, 'snow');
+        const stoneTexture = gameInstance.getTextureInSpriteSheet(spriteSheetName, 'stone');
+        const stoneFloorTexture = gameInstance.getTextureInSpriteSheet(spriteSheetName, 'stone_floor');
+
         const tileSize = 128;
 
         const maxX = 128;
         const maxY = 128;
 
-        const compositeTilemap = new CompositeTilemap();
+        const tilemapContainer = new TilemapContainer();
         
-        compositeTilemap.scale.set(tileSize / textureSize);
+        // tilemapContainer.scale.set(tileSize / textureSize);
 
-        this.getContainer().addChild(compositeTilemap);
+        this.getContainer().addChild(tilemapContainer);
 
         for (let x = 0; x < maxX; x++)
         {
             for (let y = 0; y < maxY; y++)
             {
-                const rand = randomInteger(0, 35);
+                let rand = randomInteger(0, 35);
                 let texture = grassTexture;
 
                 if (rand <= 2)
@@ -62,18 +67,35 @@ export class WorldTile extends Actor
                 {
                     texture = planksTexture;
                 }
+                else if (rand == 7)
+                {
+                    texture = snowTexture;
+                }
+                else if (rand == 9)
+                {
+                    texture = stoneTexture;
+                }
+                else if (rand == 10)
+                {
+                    texture = stoneFloorTexture;
+                }
 
                 if (!texture)
                 {
                     continue;
                 }
 
-                compositeTilemap.tile(texture, x * textureSize, y * textureSize, {
-                    tileHeight: textureSize,
-                    tileWidth: textureSize
+                tilemapContainer.addTile(texture, x * tileSize, y * tileSize, {
+                    height: tileSize,
+                    width: tileSize,
+                    anchor: new PIXI.Point(0.5, 0.5),
+                    light: [0, 0, 0, 1],
+                    scale: new PIXI.Point(1, 1)
                 });
             }
         }
+
+        
 
         const bounds = { x: 0, y: 0 };
 

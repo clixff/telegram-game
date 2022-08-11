@@ -1,31 +1,17 @@
 import { ResolverAssetsArray } from "@pixi/assets";
 import { GameInstance } from "../../engine/core/GameInstance";
+import { LoadingUI } from "../ui/LoadingUI";
 import { RPGGameSession } from "./RPGGameSession";
 
 export class RPGGameInstance extends GameInstance
 {
     gameSession: RPGGameSession | null = null;
+    loadingUI: LoadingUI;
     constructor()
     {
-        window.addEventListener('touchmove', (event) =>
-        {
-            event.preventDefault();
-            event.stopPropagation();
-            event.stopImmediatePropagation();
-        }, {
-            passive: true
-        });
-
-        document.addEventListener('touchmove', (event) =>
-        {
-            event.preventDefault();
-            event.stopPropagation();
-            event.stopImmediatePropagation();
-        },
-        {
-            passive: true
-        });
         super();
+        this.loadingUI = new LoadingUI();
+        this.addUIScene(this.loadingUI);
     }
 
     async Init(assets: ResolverAssetsArray): Promise<void>
@@ -46,6 +32,20 @@ export class RPGGameInstance extends GameInstance
     {
         this.gameSession = new RPGGameSession();
         this.gameSession.Init();
+    }
+
+    
+    onAssetsLoadingProgress(progress: number): void
+    {
+        super.onAssetsLoadingProgress(progress);
+        this.loadingUI.updateText(progress);
+    }
+
+    onAssetsLoaded(): void 
+    {
+        super.onAssetsLoaded();
+
+        this.getApp().stage.removeChild(this.loadingUI);
     }
 }
     

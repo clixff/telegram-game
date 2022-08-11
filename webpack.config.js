@@ -4,6 +4,8 @@ import MiniCssExtractPlugin from 'mini-css-extract-plugin';
 import CssMinimizerPlugin from 'css-minimizer-webpack-plugin';
 import CopyWebpackPlugin from 'copy-webpack-plugin';
 import { CleanWebpackPlugin } from 'clean-webpack-plugin';
+import JsonMinimizerPlugin from 'json-minimizer-webpack-plugin';
+
 
 export default {
     entry: "./build/front/index.js",
@@ -39,16 +41,10 @@ export default {
                     }
                 ]
             },
-            // {
-            //     test: /\.(png|jpe?g|gif)$/i,
-            //     loader: 'file-loader',
-            //     options: {
-            //         name: '[path][contenthash].[ext]',
-            //         outputPath: 'assets',
-            //         context: 'src/front/assets/',
-            //         publicPath: '/assets/'
-            //     }
-            // },
+            {
+                test: /\.(vert|frag)$/i,
+                type: 'asset/source'
+            }
         ]
         },
     plugins: [
@@ -77,9 +73,11 @@ export default {
         extensions: [ '.js' ],
         },
         optimization: {
-        minimize: true,
-        minimizer: [
-            '...', new CssMinimizerPlugin(),
-        ],
+            minimize: true,
+            minimizer: [
+                '...', 
+                new CssMinimizerPlugin(),
+                new JsonMinimizerPlugin()
+            ],
     }
 }

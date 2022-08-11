@@ -70,7 +70,7 @@ export class JoystickContainer extends Container
             this.onThumbMove(event.data.global);
         });
 
-        const joystckBgTexture = gameInstance.getTextureByName('ui_joystick_bg');
+        const joystckBgTexture = gameInstance.getTextureInSpriteSheet('virtual_joystick', 'joystick_bg');
 
         if (joystckBgTexture)
         {
@@ -79,7 +79,7 @@ export class JoystickContainer extends Container
             this.joystickBG.alpha = 0.5;
         }
 
-        const joystickThubmTexture = gameInstance.getTextureByName('ui_joystick_thumb');
+        const joystickThubmTexture = gameInstance.getTextureInSpriteSheet('virtual_joystick', 'joystick_thumb');
 
         if (joystickThubmTexture && this.joystickBG)
         {

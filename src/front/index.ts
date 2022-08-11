@@ -4,51 +4,23 @@ import './code/engine/thirdParty/telegram/telegram';
 
 const gameInstance = new RPGGameInstance();
 
-const gameAssets = [{
-	name: 't_grass',
-	srcs: '/assets/grass.png',
-},
+const gameAssets = [
 {
-	name: 't_dirt',
-	srcs: '/assets/dirt.png',
-},
-{
-	name: 't_tile',
-	srcs: '/assets/tile.png',
-},
-{
-	name: 't_tree',
-	srcs: '/assets/tree.png',
-},
-{
-	name: 't_sand',
-	srcs: '/assets/sand.png',
-},
-{
-	name: 't_water',
-	srcs: '/assets/water.png',
+	name: 'atlas_tile',
+	srcs: '/assets/tiles/atlas/tile_atlas.json'
 },
 {
 	name: 't_shadow',
 	srcs: '/assets/shadow.png',
 },
 {
-	name: 't_planks',
-	srcs: '/assets/planks.png',
-},
-{
 	name: 't_pawn',
 	srcs: '/assets/pawn.png',
 },
 {
-	name: 'ui_joystick_bg',
-	srcs: '/assets/ui/controls/joystick_bg.png',
-},
-{
-	name: 'ui_joystick_thumb',
-	srcs: '/assets/ui/controls/joystick_thumb.png',
+	name: 'virtual_joystick',
+	srcs: '/assets/ui/controls/joystick.json'
 }];
-
 
 gameInstance.Init(gameAssets);
 

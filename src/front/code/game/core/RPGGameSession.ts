@@ -4,6 +4,7 @@ import { GameScene } from "../../engine/scene/GameScene";
 import { Pawn } from "../pawn/Pawn";
 import { GamePlayerController } from "../player/GamePlayerController";
 import { GameUI } from "../ui/GameUI";
+import { TestWorld } from "../world/TestWorld";
 import { TreesWrapper } from "../world/Trees";
 import { WorldTile } from "../world/WorldTile";
 
@@ -36,6 +37,7 @@ export class RPGGameSession
         this.playerPawn = this.scene.spawnActor(Pawn, true);
         this.worldTile = this.scene.spawnActor(WorldTile, true);
         // let treesWrapper = this.scene.spawnActor(TreesWrapper, true);
+        // this.scene.spawnActor(TestWorld, true);
 
         // treesWrapper.getContainer().zIndex = 2;
 
