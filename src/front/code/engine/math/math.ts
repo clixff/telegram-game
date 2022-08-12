@@ -32,3 +32,9 @@ export function lerp(min: number, max: number, alpha: number): number
 {
     return min + (max - min) * alpha;
 }
+
+export function rgbToHex(r: number, g: number, b: number): number
+{
+    return (Math.floor(r * 255) << 16) + (Math.floor(g * 255) << 8) + Math.floor(b * 255);
+}
+
