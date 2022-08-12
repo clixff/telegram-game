@@ -30,8 +30,6 @@ export class CurveFloat
                 return 0;
             }
         });
-
-        console.log(this.points);
     }
 
     getValue(time: number): number

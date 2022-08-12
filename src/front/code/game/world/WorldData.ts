@@ -1,18 +1,19 @@
 import * as PIXI from 'pixi.js';
 import { GameInstance } from '../../engine/core/GameInstance';
 import { randomInteger } from '../../engine/math/math';
+import { ITileData } from '../../engine/tilemap/TilemapContainer';
 
 export enum EFloorType
 {
-    None,
-    Dirt,
-    Stone,
-    Grass,
-    Sand,
-    Snow,
-    Water,
-    StoneFloor,
-    Planks
+    None = "None",
+    Dirt = "Dirt",
+    Stone = "Stone",
+    Grass = "Grass",
+    Sand = "Sand",
+    Snow = "Snow",
+    Water = "Water",
+    StoneFloor = "StoneFloor",
+    Planks = "Planks"
 }
 
 export enum EBiomeType
@@ -51,9 +52,11 @@ export class WorldData
     tileData: Array<Array<WorldTileData>> = [ ];
     biome = EBiomeType.None;
 
+    bShouldReRenderFloor = false;
+
     constructor()
     {
-
+        this.getFloorTilemapsForRender = this.getFloorTilemapsForRender.bind(this);
     }
 
     generateWorld()
@@ -98,7 +101,7 @@ export class WorldData
                 {
                     floorTile = EFloorType.Planks;
                 }
-                else if (randNumber == 4)
+                else if (randNumber == 4 && (this.biome !== EBiomeType.Desert))
                 {
                     floorTile = EFloorType.Water;
                 }
@@ -106,7 +109,7 @@ export class WorldData
                 {
                     floorTile = EFloorType.Dirt;
                 }
-                else if (randNumber == 6)
+                else if (randNumber == 6 && (this.biome !== EBiomeType.Snow))
                 {
                     floorTile = EFloorType.Sand;
                 }
@@ -114,10 +117,55 @@ export class WorldData
                 this.tileData[x][y] = new WorldTileData(floorTile);
             }
         }
+
+        this.bShouldReRenderFloor = true;
+    }
+
+    getFloorTilemapsForRender(): Array<ITileData>
+    {
+        if (!this.tileData.length || !this.tileData[0].length)
+        {
+            return [];
+        }
+
+        const tileData: Array<ITileData> = new Array(this.tileData.length * this.tileData[0].length);
+
+        let i = 0;
+
+        for (let x = 0; x < this.tileData.length; x++)
+        {
+            for (let y = 0; y < this.tileData[x].length; y++)
+            {
+                const tile = this.tileData[x][y];
+
+                if (!tile.floor.texture)
+                {
+                    continue;
+                }
+
+                tileData[i] = {
+                    x: x * WorldData.TileSize,
+                    y: y * WorldData.TileSize,
+                    texture: tile.floor.texture,
+                    anchor: new PIXI.Point(0.5, 0.5),
+                    width: WorldData.TileSize,
+                    height: WorldData.TileSize,
+                    light: [0, 0, 0, 1],
+                    scale: new PIXI.Point(1, 1)
+                };
+
+
+                i++;
+            }
+        }
+
+        return tileData;
     }
 
     getTileAt(x: number, y: number): WorldTileData | null
     {
+        x += WorldData.WorldSize / 2;
+        y += WorldData.WorldSize / 2;
         const arrayX = this.tileData[x];
 
         if (!arrayX)
@@ -126,6 +174,44 @@ export class WorldData
         }
 
         return arrayX[y] || null;
+    }
+
+    onTileClicked(x: number, y: number): void
+    {
+        const tile = this.getTileAt(x, y);
+
+        if (!tile)
+        {
+            return;
+        }
+
+        console.log(`Tile clicked at ${x}, ${y} with type ${tile.floor.type}`, tile);
+
+        const randomTileTypes = [...WorldData.FloorDataMap.keys()];
+
+        this.replactFloorTile(x, y, randomTileTypes[randomInteger(0, randomTileTypes.length - 1)]);
+    }
+
+    replactFloorTile(x: number, y: number, newFloorType: EFloorType): void
+    {
+        const floorData = WorldData.GetFloorData(newFloorType);
+
+        if (!floorData)
+        {
+            console.error(`Failed to set tile to type ${newFloorType}`);
+            return;
+        }
+
+        const tile = this.getTileAt(x, y);
+
+        if (!tile)
+        {
+            return;
+        }
+
+        tile.floor = floorData;
+        this.bShouldReRenderFloor = true;
+
     }
 
     static Init()

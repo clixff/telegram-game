@@ -49,6 +49,7 @@ export class GameInstance
         if (telegramApp)
         {
             telegramApp.expand();
+            telegramApp.enableClosingConfirmation();
             telegramApp.ready();
         }
 

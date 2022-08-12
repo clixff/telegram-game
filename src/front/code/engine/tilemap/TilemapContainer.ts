@@ -19,11 +19,11 @@ export interface ITileData extends ITileOptions
 
 export class TilemapContainer extends PIXI.Container
 {
-    
-    public tiles: Array<ITileData> = [];
-
     geometry: TilemapGeometry | null = null;
 
+    getTilesForRenderCallback: (() => Array<ITileData>) | null = null;
+
+    bShouldUpdateGeometry: boolean = false;
 
     constructor()
     {
@@ -43,18 +43,29 @@ export class TilemapContainer extends PIXI.Container
             scale: options.scale || new PIXI.Point(1, 1)
         };
   
-        this.tiles.push(tile);
+        // this.tiles.push(tile);
+    }
+
+    setGetTilesForRenderFunction(func: () => Array<ITileData>): void
+    {
+        this.getTilesForRenderCallback = func;
     }
 
     render(renderer: PIXI.Renderer): void 
     {
         renderer.batch.setObjectRenderer(renderer.plugins['customTilemap']);
 
+        if (this.bShouldUpdateGeometry)
+        {
+            this.updateGeometry();
+        }
+
         renderer.plugins['customTilemap'].render(this);
     }
 
     updateGeometry()
     {
+        const timeA = Date.now();
         if (this.geometry)
         {
             this.geometry.destroy();
@@ -63,12 +74,19 @@ export class TilemapContainer extends PIXI.Container
         this.geometry = new TilemapGeometry();
         this.geometry.baseTextures = [];
 
-        this.geometry.indicesBuffer = new Uint32Array(this.tiles.length * 6);
+        if (!this.getTilesForRenderCallback)
+        {
+            return;
+        }
 
-        const positionBuffer = new Float32Array(this.tiles.length * 4 * 2);
-        const uvBuffer = new Float32Array(this.tiles.length * 4 * 2);
-        const textureIDsBuffer = new Float32Array(this.tiles.length * 4 * 1);
-        const lightColorBuffer = new Float32Array(this.tiles.length * 4 * 3);
+        const tiles = this.getTilesForRenderCallback();
+
+        this.geometry.indicesBuffer = new Uint32Array(tiles.length * 6);
+
+        const positionBuffer = new Float32Array(tiles.length * 4 * 2);
+        const uvBuffer = new Float32Array(tiles.length * 4 * 2);
+        const textureIDsBuffer = new Float32Array(tiles.length * 4 * 1);
+        const lightColorBuffer = new Float32Array(tiles.length * 4 * 3);
 
         this.geometry.addProperty('aPosition', positionBuffer, this.geometry.updatePosition, 2);
         this.geometry.addProperty('aTextureCoord', uvBuffer, this.geometry.updateUV, 2);
@@ -77,9 +95,9 @@ export class TilemapContainer extends PIXI.Container
 
         let vertexIndex = 0;
         /** Update properties buffers for every tile */
-        for (let i = 0; i < this.tiles.length; i++)
+        for (let i = 0; i < tiles.length; i++)
         {
-            const tile = this.tiles[i];
+            const tile = tiles[i];
             for (let propertyName in this.geometry.properties)
             {
                 const property = this.geometry.properties[propertyName];
@@ -109,5 +127,9 @@ export class TilemapContainer extends PIXI.Container
         } 
         
         this.geometry.addIndex(this.geometry.indicesBuffer);
+        this.bShouldUpdateGeometry = false;
+
+        const timeB = Date.now();
+        console.log(`[Tilemap] Updating geometry took ${timeB - timeA} ms`);
     }
 }

@@ -14,6 +14,7 @@ interface ITelegramApp
     close: () => void;
     onEvent: (name: string, callback: (...args: any) => void) => void;
     isExpanded: boolean;
+    enableClosingConfirmation: () => void;
 }
 
 interface IWindowTelegramApp
