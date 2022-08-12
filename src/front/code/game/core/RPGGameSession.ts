@@ -7,7 +7,8 @@ import { GamePlayerController } from "../player/GamePlayerController";
 import { DayTimeActor } from "../time/DayTime";
 import { GameUI } from "../ui/GameUI";
 import { TreesWrapper } from "../world/Trees";
-import { WorldTile } from "../world/WorldTile";
+import { WorldData } from "../world/WorldData";
+import { FloorTileMap } from "../world/WorldTile";
 
 export class RPGGameSession
 {
@@ -15,7 +16,8 @@ export class RPGGameSession
     playerPawn: Pawn | null = null;
     playerController: GamePlayerController | null = null;
     gameUI: GameUI | null = null;
-    worldTile: WorldTile | null = null;
+    floorTileMap: FloorTileMap | null = null;
+    worldData: WorldData | null = null;
 
     constructor()
     {
@@ -35,13 +37,21 @@ export class RPGGameSession
 
         gameInstance.loadScene(this.scene);
 
-        const skyLight = this.scene.spawnActor(SkyLightActor, true);
-        const dayTimeActor = this.scene.spawnActor(DayTimeActor, true);
+        this.worldData = new WorldData();
+        WorldData.Init();
+        this.worldData.generateWorld();
 
+        const skyLight = this.scene.spawnActor(SkyLightActor, true);
+
+        const dayTimeActor = this.scene.spawnActor(DayTimeActor, true);
         dayTimeActor.skyLightActorRef = skyLight;
+        dayTimeActor.updateBiome(this.worldData.biome);
 
         this.playerPawn = this.scene.spawnActor(Pawn, true);
-        this.worldTile = this.scene.spawnActor(WorldTile, true);
+
+        this.floorTileMap = this.scene.spawnActor(FloorTileMap, true);
+        this.floorTileMap.worldData = this.worldData;
+        this.floorTileMap.init();
 
         this.playerController = gameInstance.initPlayerController(GamePlayerController);
         this.playerController.actor = this.playerPawn;

@@ -3,6 +3,7 @@ import { SkyLightActor } from "../../engine/light/SkyLight";
 import { clamp } from "../../engine/math/math";
 import { CurveFloat } from "../../engine/misc/Curve";
 import { Actor } from "../../engine/scene/actors/Actor";
+import { EBiomeType } from "../world/WorldData";
 
 export class DayTimeActor extends Actor
 {
@@ -66,5 +67,27 @@ export class DayTimeActor extends Actor
         }
 
         this.skyLightActorRef.setLightIntensity(intensity);
+    }
+    updateBiome(biome: EBiomeType): void
+    {
+        if (!this.skyLightActorRef)
+        {
+            return;
+        }
+
+        let lightColor = [ 0.964, 0.925, 0.819 ];
+
+        switch (biome)
+        {
+            case EBiomeType.Desert:
+                lightColor = [ 1, 0.976, 0.901 ];
+                break;
+            case EBiomeType.Snow:
+                lightColor = [ 0.85, 0.85, 0.99 ];
+                break;
+        }
+
+        this.skyLightActorRef.lightColor = lightColor;
+        this.skyLightActorRef.updateLight();
     }
 }

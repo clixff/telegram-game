@@ -7,14 +7,19 @@ import { SpriteComponent } from "../../engine/scene/actors/components/SpriteComp
 import * as PIXI from 'pixi.js';
 import { CompositeTilemap, settings as tileSettings } from "@pixi/tilemap";
 import { TilemapContainer } from "../../engine/tilemap/TilemapContainer";
+import { WorldData } from "./WorldData";
 
-export class WorldTile extends Actor
+export class FloorTileMap extends Actor
 {
     spriteComponent: SpriteComponent | null = null;
+    worldData: WorldData | null = null;
     constructor()
     {
         super();
+    }
 
+    init()
+    {
         const gameInstance = GameInstance.Get();
 
         if (!gameInstance)
@@ -22,72 +27,32 @@ export class WorldTile extends Actor
             return;
         }
 
-        const spriteSheetName = 'atlas_tile';
-
-        const grassTexture = gameInstance.getTextureInSpriteSheet(spriteSheetName, 'grass');
-        const dirtTexture = gameInstance.getTextureInSpriteSheet(spriteSheetName, 'dirt');
-        const sandTexture = gameInstance.getTextureInSpriteSheet(spriteSheetName, 'sand');
-        const waterTexture = gameInstance.getTextureInSpriteSheet(spriteSheetName, 'water');
-        const planksTexture = gameInstance.getTextureInSpriteSheet(spriteSheetName, 'planks');
-        const snowTexture = gameInstance.getTextureInSpriteSheet(spriteSheetName, 'snow');
-        const stoneTexture = gameInstance.getTextureInSpriteSheet(spriteSheetName, 'stone');
-        const stoneFloorTexture = gameInstance.getTextureInSpriteSheet(spriteSheetName, 'stone_floor');
-
-        const tileSize = 128;
-
-        const maxX = 128;
-        const maxY = 128;
-
-        const tilemapContainer = new TilemapContainer();
+        if (!this.worldData)
+        {
+            return;
+        }
         
-        // tilemapContainer.scale.set(tileSize / textureSize);
+        const tilemapContainer = new TilemapContainer();
 
         this.getContainer().addChild(tilemapContainer);
 
-        for (let x = 0; x < maxX; x++)
+        for (let x = 0; x < WorldData.WorldSize; x++)
         {
-            for (let y = 0; y < maxY; y++)
+            for (let y = 0; y < WorldData.WorldSize; y++)
             {
-                let rand = randomInteger(0, 35);
-                let texture = grassTexture;
+                const tile = this.worldData.tileData[x][y];
+                const texture = tile.floor.texture;
 
-                if (rand <= 2)
-                {
-                    texture = waterTexture;
-                }
-                else if (rand == 4)
-                {
-                    texture = sandTexture;
-                }
-                else if (rand == 5)
-                {
-                    texture = dirtTexture;
-                }
-                else if (rand == 6)
-                {
-                    texture = planksTexture;
-                }
-                else if (rand == 7)
-                {
-                    texture = snowTexture;
-                }
-                else if (rand == 9)
-                {
-                    texture = stoneTexture;
-                }
-                else if (rand == 10)
-                {
-                    texture = stoneFloorTexture;
-                }
+                console.log(texture);
 
                 if (!texture)
                 {
                     continue;
                 }
 
-                tilemapContainer.addTile(texture, x * tileSize, y * tileSize, {
-                    height: tileSize,
-                    width: tileSize,
+                tilemapContainer.addTile(texture, x * WorldData.TileSize, y * WorldData.TileSize, {
+                    height: WorldData.TileSize,
+                    width: WorldData.TileSize,
                     anchor: new PIXI.Point(0.5, 0.5),
                     light: [0, 0, 0, 1],
                     scale: new PIXI.Point(1, 1)
@@ -95,12 +60,10 @@ export class WorldTile extends Actor
             }
         }
 
-        
-
         const bounds = { x: 0, y: 0 };
 
-        bounds.x = tileSize * maxX;
-        bounds.y = tileSize * maxY;
+        bounds.x = WorldData.TileSize * WorldData.WorldSize;
+        bounds.y = WorldData.TileSize * WorldData.WorldSize;
 
         this.getContainer().pivot.set(bounds.x / 2, bounds.y / 2);
     }
