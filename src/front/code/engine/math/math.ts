@@ -38,3 +38,7 @@ export function rgbToHex(r: number, g: number, b: number): number
     return (Math.floor(r * 255) << 16) + (Math.floor(g * 255) << 8) + Math.floor(b * 255);
 }
 
+export function dist2d(x1: number, y1: number, x2: number, y2: number): number
+{
+    return Math.sqrt((x1 - x2) * (x1 - x2) + (y1 - y2) * (y1 - y2));
+}

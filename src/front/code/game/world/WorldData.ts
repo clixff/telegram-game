@@ -1,6 +1,6 @@
 import * as PIXI from 'pixi.js';
 import { GameInstance } from '../../engine/core/GameInstance';
-import { randomInteger } from '../../engine/math/math';
+import { clamp, dist2d, randomInteger } from '../../engine/math/math';
 import { ITileData } from '../../engine/tilemap/TilemapContainer';
 
 export enum EFloorType
@@ -30,16 +30,38 @@ interface ITileFloorData
     texture: PIXI.Texture | null;
 }
 
+/** Red, Green, Blue, Alpha */
+export type LightRGBA = [number, number, number, number];
+
+interface ILightSource
+{
+    radius: number;
+}
+
+interface ITilePropData
+{
+    id: string;
+    texture: PIXI.Texture | null;
+    lightSource: ILightSource | null;
+}
+
+interface ITilePropInstance
+{
+    prop: ITilePropData;
+}
 
 export class WorldTileData
 {
     floor: ITileFloorData = WorldData.GetFloorData(EFloorType.None) || { type: EFloorType.None, texture: null };
+    prop: ITilePropInstance | null = null;
+    light: LightRGBA = [0, 0, 0, 1];
 
     constructor(floor: EFloorType)
     {
         this.floor = WorldData.GetFloorData(floor) || { type: EFloorType.None, texture: null };
     }
 }
+
 
 export class WorldData
 {
@@ -49,9 +71,12 @@ export class WorldData
     static FloorData: ITileFloorData[] = [];
     static FloorDataMap = new Map<EFloorType, ITileFloorData>();
 
+    static PropsData: ITilePropData[] = [];
+    static PropsMap = new Map<string, ITilePropData>();
+
     tileData: Array<Array<WorldTileData>> = [ ];
     biome = EBiomeType.None;
-
+ 
     bShouldReRenderFloor = false;
 
     constructor()
@@ -150,7 +175,7 @@ export class WorldData
                     anchor: new PIXI.Point(0.5, 0.5),
                     width: WorldData.TileSize,
                     height: WorldData.TileSize,
-                    light: [0, 0, 0, 1],
+                    light: tile.light,
                     scale: new PIXI.Point(1, 1)
                 };
 
@@ -187,9 +212,13 @@ export class WorldData
 
         console.log(`Tile clicked at ${x}, ${y} with type ${tile.floor.type}`, tile);
 
-        const randomTileTypes = [...WorldData.FloorDataMap.keys()];
+        const randomTileTypes = [EFloorType.Dirt, EFloorType.Stone, EFloorType.Grass, EFloorType.Sand, EFloorType.Snow, EFloorType.Water, EFloorType.StoneFloor, EFloorType.Planks];
 
         this.replactFloorTile(x, y, randomTileTypes[randomInteger(0, randomTileTypes.length - 1)]);
+
+        tile.prop = WorldData.CreatePropInstanceById('torch');
+
+        this.updateLighting();
     }
 
     replactFloorTile(x: number, y: number, newFloorType: EFloorType): void
@@ -214,6 +243,94 @@ export class WorldData
 
     }
 
+    updateLighting(): void
+    {
+        interface ILightPropData
+        {
+            x: number;
+            y: number;
+            propInstance: ITilePropInstance;
+        }
+
+        const lightProps: ILightPropData[] = [];
+
+        /** Clear light level for all tiles */
+        for (let x = 0; x < this.tileData.length; x++)
+        {
+            for (let y = 0; y < this.tileData[x].length; y++)
+            {
+                const tile = this.tileData[x][y];
+
+                if (tile.prop && tile.prop.prop.lightSource)
+                {
+                    lightProps.push({
+                        x,
+                        y,
+                        propInstance: tile.prop
+                    });
+                }
+
+                tile.light = [0, 0, 0, 1];
+            }
+        }
+
+        /** Update light level for tiles around light props with radius */
+        for (let i = 0; i < lightProps.length; i++)
+        {
+            const lightPropData = lightProps[i];
+            const lightProp = lightPropData.propInstance;
+
+            if (!lightProp.prop.lightSource)
+            {
+                continue;
+            }
+
+            const radius = lightProp.prop.lightSource.radius;
+
+            for (let x = lightPropData.x - radius; x <= lightPropData.x + radius; x++)
+            {
+                for (let y = lightPropData.y - radius; y <= lightPropData.y + radius; y++)
+                {
+                    const tile = this.tileData[x][y];
+
+                    if (!tile)
+                    {
+                        continue;
+                    }
+
+                    let dist = dist2d(lightPropData.x, lightPropData.y, x, y);
+                    
+                    if (dist > radius)
+                    {
+                        continue;
+                    }
+                    
+                    // dist = Math.floor(dist);
+                    
+                    const distScale = clamp(1 - dist / radius, 0, 1);
+                    
+                    const color: LightRGBA = [ 1, 0.925, 0.05, 1 * distScale ];
+
+                    const lightIntensity = 1;
+                    
+                    const light = tile.light;
+                    light[0] += color[0] * (lightIntensity * distScale);
+                    light[1] += color[1] * (lightIntensity * distScale);
+                    light[2] += color[2] * (lightIntensity * distScale);
+
+                    // light[0] = clamp(light[0], 0, 1);
+                    // light[1] = clamp(light[1], 0, 1);
+                    // light[2] = clamp(light[2], 0, 1);
+                    light[3] = clamp(lightIntensity, 0, 1);
+
+                    tile.light = light;
+                }
+            }
+        }
+
+        this.bShouldReRenderFloor = true;
+    }
+
     static Init()
     {
         const gameInstance = GameInstance.Get();
@@ -227,6 +344,10 @@ export class WorldData
         const spriteSheetName = 'atlas_tile';
 
         WorldData.FloorData = [
+            {
+                type: EFloorType.None,
+                texture: null
+            },
             {
                 type: EFloorType.Dirt,
                 texture: gameInstance.getTextureInSpriteSheet(spriteSheetName, 'dirt')
@@ -263,10 +384,44 @@ export class WorldData
 
         WorldData.FloorDataMap = new Map<EFloorType, ITileFloorData>();
         WorldData.FloorData.forEach(floor => WorldData.FloorDataMap.set(floor.type, floor));
+
+        WorldData.PropsData = [
+            {
+                id: 'torch',
+                texture: null,
+                lightSource: 
+                {
+                    radius: 4
+                }
+            }
+        ];
+
+        WorldData.PropsMap = new Map<string, ITilePropData>();
+        WorldData.PropsData.forEach(prop => WorldData.PropsMap.set(prop.id, prop));
     }
 
     static GetFloorData(type: EFloorType): ITileFloorData | null
     {
         return WorldData.FloorDataMap.get(type) || null;
     }
+
+    static GetPropById(id: string): ITilePropData | null
+    {
+        return WorldData.PropsMap.get(id) || null;
+    }
+
+    static CreatePropInstanceById(id: string): ITilePropInstance | null
+    {
+        const propData = WorldData.GetPropById(id);
+
+        if (!propData)
+        {
+            return null;
+        }
+
+        return {
+            prop: propData
+        };
+    }
+
 }

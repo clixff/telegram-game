@@ -87,6 +87,8 @@ export class DayTimeActor extends Actor
                 break;
         }
 
+        lightColor = [ 0.85, 0.85, 0.85 ];
+
         this.skyLightActorRef.lightColor = lightColor;
         this.skyLightActorRef.updateLight();
     }

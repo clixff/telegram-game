@@ -1,13 +1,16 @@
 import * as PIXI from 'pixi.js';
 import { TilemapGeometry } from './TilemapGeometry';
 
+type lightRGBA = [number, number, number, number];
+
+
 export interface ITileOptions
 {
     width: number;
     height: number;
     scale: PIXI.Point;
     anchor: PIXI.Point;
-    light: [0, 0, 0, 1];
+    light: lightRGBA;
 }
 
 export interface ITileData extends ITileOptions

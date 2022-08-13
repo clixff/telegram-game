@@ -42,7 +42,7 @@ export class JoystickContainer extends Container
 
         this.interactive = true;
         this.interactiveChildren = true;
-        this.pivot.set(256, 256);
+        this.pivot.set(256 / 2, 256);
 
         this.on('pointerdown', (event) =>
         {
@@ -88,9 +88,9 @@ export class JoystickContainer extends Container
             this.joystickThumb.anchor.set(0.5);
         }
 
-        this.position = {x: gameInstance.getWidth(), y: gameInstance.getHeight()};
+        this.position = {x: gameInstance.getWidth() / 2, y: gameInstance.getHeight()};
 
-        this.position.x -= gameInstance.getWidth() * 0.125;
+        // this.position.x -= gameInstance.getWidth() * 0.125;
         this.position.y -= gameInstance.getHeight() * 0.15;
 
         const maxWidth = 800.0;
@@ -139,17 +139,19 @@ export class JoystickContainer extends Container
 
         const joystickCenterScreenSpace = this.getGlobalPosition();
 
-        joystickCenterScreenSpace.x -= backgroundSizeScaled.x / 2;
+        // joystickCenterScreenSpace.x -= backgroundSizeScaled.x / 2;
         joystickCenterScreenSpace.y -= backgroundSizeScaled.y / 2;
 
         const locationDiff = { x: screenPosition.x - joystickCenterScreenSpace.x, y: screenPosition.y - joystickCenterScreenSpace.y };
 
-        const vectorLength = clamp(getVectorLength(locationDiff), 0.0, backgroundSize.x / 2);
+        const multiplier = 1.85;
+        
+        const vectorLength = clamp(getVectorLength(locationDiff), 0.0, backgroundSize.x / multiplier);
         const normalizedDiff = normalizeVector(locationDiff);
 
         const thumbPosition = { x: normalizedDiff.x * vectorLength, y: normalizedDiff.y * vectorLength };
 
-        this.thumbVector = { x: thumbPosition.x / (backgroundSize.x / 2), y: thumbPosition.y / (backgroundSize.y / 2) };
+        this.thumbVector = { x: thumbPosition.x / (backgroundSize.x / multiplier), y: thumbPosition.y / (backgroundSize.y / multiplier) };
 
         thumbPosition.x += backgroundSize.x / 2;
         thumbPosition.y += backgroundSize.y / 2;

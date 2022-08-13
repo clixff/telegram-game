@@ -9,6 +9,17 @@ import { WorldData } from "./WorldData";
 import { InteractiveRectComponent } from "../../engine/scene/actors/components/InteractiveRectComponent";
 import { TilemapComponent } from "../../engine/scene/actors/components/TilemapComponent";
 
+interface ITouchData
+{
+    /** X position of the tile */
+    x: number;
+    /** Y position of the tile */
+    y: number;
+    touchID: number;
+    /** Seconds since the app start when the touch event created */
+    startTime: number;
+}
+
 
 export class FloorTileMap extends Actor
 {
@@ -17,6 +28,9 @@ export class FloorTileMap extends Actor
     rootContainer: ContainerComponent;
     tilemapComponent: TilemapComponent | null = null;
     worldRect: InteractiveRectComponent | null = null;
+
+    touchButtonsPressed: Record<number, ITouchData> = {};
+
     constructor()
     {
         super();
@@ -24,6 +38,7 @@ export class FloorTileMap extends Actor
         this.rootContainer = new ContainerComponent(this);
         this.setRootComponent(this.rootContainer);
         this.onPointerUp = this.onPointerUp.bind(this);
+        this.onPointerDown = this.onPointerDown.bind(this);
     }
 
     init()
@@ -65,19 +80,14 @@ export class FloorTileMap extends Actor
 
         this.rootContainer.addChild(this.worldRect);
 
-        this.worldRect.on('pointerdown', (event) =>
-        {
-            // console.log(`Pointer down`, event);
-        });
+        this.worldRect.on('pointerdown', this.onPointerDown);
         
         this.worldRect.on('pointerup', this.onPointerUp);
     }
 
-    onPointerUp(event: PIXI.InteractionEvent): void
+    getTilePositionByScreenPosition(x: number, y: number): PIXI.Point
     {
-        console.log(`Pointer up`, event);
-
-        const screenPosition: PIXI.Point = event.data.global;
+        const screenPosition: PIXI.Point = new PIXI.Point(x, y);
 
         const worldPosition = this.getContainer().toLocal(screenPosition);
         worldPosition.x += WorldData.TileSize / 2.0;
@@ -88,6 +98,63 @@ export class FloorTileMap extends Actor
         const tilePosition = worldPosition;
         tilePosition.x = Math.floor(worldPosition.x / WorldData.TileSize);
         tilePosition.y = Math.floor(worldPosition.y / WorldData.TileSize);
+
+        return tilePosition;
+    }
+
+    getTouchButtonID(event: PIXI.InteractionEvent): number
+    {
+        const touchEvent = event.data.originalEvent as TouchEvent;
+
+        if (!touchEvent.changedTouches)
+        {
+            return 0;
+        }
+
+        const touchData = touchEvent.changedTouches[0];
+
+        return isFinite(touchData.identifier) ? touchData.identifier : 0;
+    }
+
+    onPointerDown(event: PIXI.InteractionEvent): void
+    {
+        const touchID = this.getTouchButtonID(event);
+        const screenPosition = event.data.global;
+        const tilePosition = this.getTilePositionByScreenPosition(screenPosition.x, screenPosition.y);
+
+        this.touchButtonsPressed[touchID] = {
+            x: tilePosition.x,
+            y: tilePosition.y,
+            touchID: touchID,
+            startTime: performance.now() / 1000
+        };
+    }
+
+    onPointerUp(event: PIXI.InteractionEvent): void
+    {
+        const touchID = this.getTouchButtonID(event);
+
+        const screenPosition = event.data.global;
+        const tilePosition = this.getTilePositionByScreenPosition(screenPosition.x, screenPosition.y);
+
+        const touchData = this.touchButtonsPressed[touchID];
+
+        if (!touchData)
+        {
+            return;
+        }
+
+        delete this.touchButtonsPressed[touchID];
+
+        const timeDiff = performance.now() / 1000 - touchData.startTime;
+
+        /** Started pressing one tile, but ended pressing an other  */
+        if (tilePosition.x !== touchData.x || tilePosition.y !== touchData.y)
+        {
+            return;
+        }
+
+        console.log(`Time diff was ${timeDiff}`);
 
         if (!this.worldData)
         {
