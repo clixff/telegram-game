@@ -3,7 +3,6 @@ import { GameInstance } from "../../engine/core/GameInstance";
 import { randomInteger } from "../../engine/math/math";
 import { Actor } from "../../engine/scene/actors/Actor";
 import { ContainerComponent } from "../../engine/scene/actors/components/ContainerComponent";
-import { SpriteComponent } from "../../engine/scene/actors/components/SpriteComponent";
 import * as PIXI from 'pixi.js';
 import { WorldData } from "./WorldData";
 import { InteractiveRectComponent } from "../../engine/scene/actors/components/InteractiveRectComponent";
@@ -23,7 +22,6 @@ interface ITouchData
 
 export class FloorTileMap extends Actor
 {
-    spriteComponent: SpriteComponent | null = null;
     worldData: WorldData | null = null;
     rootContainer: ContainerComponent;
     tilemapComponent: TilemapComponent | null = null;

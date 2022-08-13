@@ -6,7 +6,7 @@ import { Pawn } from "../pawn/Pawn";
 import { GamePlayerController } from "../player/GamePlayerController";
 import { DayTimeActor } from "../time/DayTime";
 import { GameUI } from "../ui/GameUI";
-import { TreesWrapper } from "../world/Trees";
+import { PropsTileMap } from "../world/PropsTiles";
 import { WorldData } from "../world/WorldData";
 import { FloorTileMap } from "../world/WorldTile";
 
@@ -17,6 +17,7 @@ export class RPGGameSession
     playerController: GamePlayerController | null = null;
     gameUI: GameUI | null = null;
     floorTileMap: FloorTileMap | null = null;
+    propsTIleMap: PropsTileMap | null = null;
     worldData: WorldData | null = null;
 
     constructor()
@@ -52,6 +53,10 @@ export class RPGGameSession
         this.floorTileMap = this.scene.spawnActor(FloorTileMap, true);
         this.floorTileMap.worldData = this.worldData;
         this.floorTileMap.init();
+
+        this.propsTIleMap = this.scene.spawnActor(PropsTileMap, true);
+        this.propsTIleMap.worldData = this.worldData;
+        this.propsTIleMap.Init();
 
         this.playerController = gameInstance.initPlayerController(GamePlayerController);
         this.playerController.actor = this.playerPawn;
